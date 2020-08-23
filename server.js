@@ -1,12 +1,17 @@
 const express = require('express');
 const dotenv = require('dotenv');
-
-//Load env vars
+const morgan = require('morgan');
+// Load env vars
 dotenv.config({ path: './config/config.env' });
 
 const app = express();
 
-app.use('/api/v1/bootcamps', require('./bootcamps'));
+// Dev Logging middleware
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
+app.use('/api/v1/bootcamps', require('./routes/bootcamps'));
 
 const PORT = process.env.PORT || 5000;
 
