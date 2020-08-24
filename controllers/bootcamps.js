@@ -1,5 +1,5 @@
 const Bootcamp = require('../models/BootCamp');
-
+const ErrorResponse = require('../utils/errorResponse');
 // @desc        Get all bootcamps
 // @route       GET /api/v1/bootcamps
 // @access      Public
@@ -10,7 +10,7 @@ exports.getBootcamps = async (req, res, next) => {
       .status(200)
       .json({ success: true, count: bootcamps.length, data: bootcamps });
   } catch (err) {
-    res.status(400).json({ success: false });
+    next(err);
   }
 };
 
@@ -21,7 +21,7 @@ exports.getBootcamp = async (req, res, next) => {
   try {
     const bootcamp = await Bootcamp.findById(req.params.id);
     if (!bootcamp) {
-      return res.status(400).json({ success: false });
+      throw '';
     }
     res.status(200).json({ success: true, data: bootcamp });
   } catch (err) {
@@ -40,8 +40,8 @@ exports.createBootcamp = async (req, res, next) => {
       success: true,
       data: bootcamp,
     });
-  } catch (error) {
-    res.status(400).json({ success: false });
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -55,14 +55,14 @@ exports.updateBootcamp = async (req, res, next) => {
       runValidators: true,
     });
     if (!bootcamp) {
-      return res.status(400).json({ success: false });
+      throw '';
     }
     res.status(200).json({
       success: true,
       data: bootcamp,
     });
-  } catch (error) {
-    res.status(400).json({ success: false });
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -75,7 +75,7 @@ exports.deleteBootcamp = async (req, res, next) => {
     res.status(200).json({
       success: true,
     });
-  } catch (error) {
-    res.status(400).json({ success: false });
+  } catch (err) {
+    next(err);
   }
 };
