@@ -6,7 +6,51 @@ const geocoder = require('../utils/geocoder');
 // @route       GET /api/v1/bootcamps
 // @access      Public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-  const bootcamps = await Bootcamp.find();
+  let query;
+
+  //Copy the object using the spread operator
+  const reqQuery = { ...req.query };
+
+  //Create the query string
+  let queryStr = JSON.stringify(reqQuery);
+
+  //Fields to exclude
+  const removeFields = ['select', 'sort'];
+
+  //Loop over removeFields and delete them from reqQuery
+  console.log(reqQuery);
+  removeFields.forEach((param) => delete reqQuery[param]);
+  console.log(reqQuery);
+
+  /*
+  regex will search for a word (\b...\b) that matches ge, gte, lt, lte, in.
+  The result will return on 'match' attribute
+  */
+  queryStr = queryStr.replace(
+    /\b(gt|gte|lt|lte|in)\b/g,
+    (match) => `$${match}`
+  );
+
+  query = Bootcamp.find(JSON.parse(queryStr));
+
+  //Select Fields
+  if (req.query.select) {
+    const fields = req.query.select.split(',').join(' ');
+    console.log(fields);
+    query = query.select(fields);
+  }
+
+  //Sort
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(',').join(' ');
+    console.log(sortBy);
+    query = query.sort(sortBy);
+  } else {
+    query = query.sort('-createdAt');
+  }
+
+  //Execure query
+  const bootcamps = await query;
   res
     .status(200)
     .json({ success: true, count: bootcamps.length, data: bootcamps });
